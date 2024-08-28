@@ -68,15 +68,13 @@ class BinOpAst():
         return f"({self.left.infix_str()} {self.val} {self.right.infix_str()})"
 
 
-def postfix_str(self):
+    def postfix_str(self):
         """
-        Convert the BinOpAst to a prefix notation string
-        Make use of new Python 3.10 case!
+        Convert the BinOpAst to a postfix notation string.
         """
-     	if self.type == NodeType.number:
-		return self.val
+        if self.type == NodeType.number:
+            return self.val
         return f"{self.left.postfix_str()} {self.right.postfix_str()} {self.val}"
-
 
     def additive_identity(self):
         """
