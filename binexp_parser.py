@@ -76,66 +76,59 @@ class BinOpAst():
             return self.val
         return f"{self.left.postfix_str()} {self.right.postfix_str()} {self.val}"
 
+
     def additive_identity(self):
         """
         Reduce additive identities
         x + 0 = x
         """
         # Check if node is an operator
-	if self.type == NodeType.operator:
-		
-		# If it is, apply identity
-		if self.left:
-			self.left.additive_identity()
-		if self.right:
-			self.right.additive_identity()
-	
-	# Check if node is addition operator
-	if self.val == '+'
-	
-		# if left child is 0, replace node with other child
-		if self.left.type == NodeType.number and self.left.val == '0':
-			self.val = self.right.val
-			self.type = self.right.type
-			self.left = self.right.left
-			self.right = self.right.right
+        if self.type == NodeType.operator:
+            # If it is, apply identity
+            if self.left:
+                self.left.additive_identity()
+            if self.right:
+                self.right.additive_identity()
 
-		# if right child is 0, replace node with other child
-		elif self.right.type == Nodetype.number and self.right.val == '0':
-			self.val = self.left.val
-			self.type = self.left.type
-			self.left = self.left.left
-			self.right = self.left.right
+        # Check if node is addition operator
+        if self.val == '+':
+            # if left child is 0, replace node with other child
+            if self.left.type == NodeType.number and self.left.val == '0':
+                self.val = self.right.val
+                self.type = self.right.type
+                self.left = self.right.left
+                self.right = self.right.right
 
+            # if right child is 0, replace node with other child
+            elif self.right.type == NodeType.number and self.right.val == '0':
+                self.val = self.left.val
+                self.type = self.left.type
+                self.left = self.left.left
+                self.right = self.left.right
 
-	
-        
-                        
     def multiplicative_identity(self):
         """
         Reduce multiplicative identities
         x * 1 = x
         """
         if self.type == NodeType.operator:
-		if self.left:
-			self.left.multiplicative_identity()
-		if self.right:
-			self.right.multiplicative_identity()
-	
-		if self.val == '*':
-			if self.left.type == NodeType.number and self.left.val == '1':
-				self.val = self.right.val
-				self.type = self.right.type
-				self.left. = self.right.left
-				self.right = self.right.right
-			elif self.right.type == NodeType.number and self.right.val == '1':
-				self.val = self.left.val
-				self.type = self.left.type
-				self.left = self.left.left
-				self.right = self.left.right	
-        
-    
-    
+            if self.left:
+                self.left.multiplicative_identity()
+            if self.right:
+                self.right.multiplicative_identity()
+
+        if self.val == '*':
+            if self.left.type == NodeType.number and self.left.val == '1':
+                self.val = self.right.val
+                self.type = self.right.type
+                self.left = self.right.left
+                self.right = self.right.right
+            elif self.right.type == NodeType.number and self.right.val == '1':
+                self.val = self.left.val
+                self.type = self.left.type
+                self.left = self.left.left
+                self.right = self.left.right
+
     def mult_by_zero(self):
         """
         Reduce multiplication by zero
@@ -143,17 +136,17 @@ class BinOpAst():
         """
         # Optionally, IMPLEMENT ME! (I'm pretty easy)
         pass
-    
+
     def constant_fold(self):
         """
         Fold constants,
         e.g. 1 + 2 = 3
         e.g. x + 2 = x + 2
         """
-        # Optionally, IMPLEMENT ME! This is a bit more challenging. 
+        # Optionally, IMPLEMENT ME! This is a bit more challenging.
         # You also likely want to add an additional node type to your AST
         # to represent identifiers.
-        pass            
+        pass
 
     def simplify_binops(self):
         """
@@ -168,48 +161,43 @@ class BinOpAst():
         self.mult_by_zero()
         self.constant_fold()
 
-##Expected Input
 def load_input(filepath):
-	with open(filepath, 'r') as file:
-		return file.read().strip().split()
+    with open(filepath, 'r') as file:
+        return file.read().strip().split()
 
-##Expected Output
 def load_output(filepath):
-	with open(filepath, 'r' as file:
-		return file.read().strip()
+    with open(filepath, 'r') as file:
+        return file.read().strip()
 
-##Run tests 
 def run_tests(test_dir, transform_function):
-	input_dir = os.path.join('testbench', test_dir, 'inputs')
-	output_dir = os.path.join('testbench', test_dir, 'outputs')
+    input_dir = os.path.join('testbench', test_dir, 'inputs')
+    output_dir = os.path.join('testbench', test_dir, 'outputs')
 
-	for test_file in os.listdir(input_dir):
-		input_path = os.path.join(input_dir, test_file)
-		output_path = os.path.join(output_dir, test_file)
-	
-		input_data = load_input(input_path)
+    for test_file in os.listdir(input_dir):
+        input_path = os.path.join(input_dir, test_file)
+        output_path = os.path.join(output_dir, test_file)
 
-		expr = BinOpAst(input_data)
-		transform_function(expr)
+        input_data = load_input(input_path)
 
-		generated_output = expr.prefix_str()
-		
-		expected_output = load_output(output_path)
-		if generated_output == expected_output:
-			print(f"{test_file}: PASS")
-		else:
-			print(f"{test_file}: FAIL")
-			print(f"Expected: {expected_output}")
-			print(f"Got: {generated_output}")
+        expr = BinOpAst(input_data)
+        transform_function(expr)
 
+        generated_output = expr.prefix_str()
+
+        expected_output = load_output(output_path)
+        if generated_output == expected_output:
+            print(f"{test_file}: PASS")
+        else:
+            print(f"{test_file}: FAIL")
+            print(f"Expected: {expected_output}")
+            print(f"Got: {generated_output}")
 
 def run_all_tests():
-	print("Additive Identity Test")
-	run_tests("arith_id", BinOpAst.additive_identity)
+    print("Additive Identity Test")
+    run_tests("arith_id", BinOpAst.additive_identity)
 
-	print("Multiplicative Identity Test")
-	run_tests("mult_id", BinOpAst.multiplicative_identity)
-
+    print("Multiplicative Identity Test")
+    run_tests("mult_id", BinOpAst.multiplicative_identity)
 
 if __name__ == "__main__":
     run_all_tests()
