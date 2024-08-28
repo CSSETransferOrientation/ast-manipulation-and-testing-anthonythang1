@@ -56,32 +56,30 @@ class BinOpAst():
         Convert the BinOpAst to a prefix notation string.
         Make use of new Python 3.10 case!
         """
-        match self.type:
-            case NodeType.number:
-                return self.val
-            case NodeType.operator:
-                return self.val + ' ' + self.left.prefix_str() + ' ' + self.right.prefix_str()
+        if self.type == NodeType.number:
+		return self.val
+	return f"{self.val} {self.left.prefix_str()} {self.right.prefix_str()}"
+
 
     def infix_str(self):
         """
         Convert the BinOpAst to a prefix notation string.
         Make use of new Python 3.10 case!
         """
-        match self.type:
-            case NodeType.number:
-                return self.val
-            case NodeType.operator:
-                return '(' + self.left.infix_str() + ' ' + self.val + ' ' + self.right.infix_str() + ')'
-    def postfix_str(self):
+        if self.type == NodeType.number:
+		return self.val
+	return f"({self.left.infix_str()} {self.val} {self.right.infix_str()})"
+
+
+ def postfix_str(self):
         """
-        Convert the BinOpAst to a prefix notation string.
+        Convert the BinOpAst to a prefix notation string
         Make use of new Python 3.10 case!
         """
-        match self.type:
-            case NodeType.number:
-                return self.val
-            case NodeType.operator:
-                return self.left.postfix_str() + ' ' + self.right.postfix_str() + ' ' + self.val
+     	if self.type == NodeType.number:
+		return self.val
+        return f"{self.left.postfix_str()} {self.right.postfix_str()} {self.val}"
+
 
     def additive_identity(self):
         """
