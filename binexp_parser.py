@@ -54,11 +54,11 @@ class BinOpAst():
     def prefix_str(self):
         """
         Convert the BinOpAst to a prefix notation string.
-        Make use of new Python 3.10 case!
         """
-	if self.type == NodeType.number:
-		return self.val
-	return f"{self.val} {self.left.prefix_str()} {self.right.prefix_str()}"
+        if self.type == NodeType.number:
+            return self.val
+        return f"{self.val} {self.left.prefix_str()} {self.right.prefix_str()}"
+
     def infix_str(self):
         """
         Convert the BinOpAst to a prefix notation string.
