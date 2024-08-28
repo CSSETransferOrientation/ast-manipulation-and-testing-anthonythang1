@@ -190,7 +190,7 @@ def run_tests(test_dir, transform_function):
 	input_dir = os.path.join('testbench', test_dir, 'inputs')
 	output_dir = os.path.join('testbench', test_dir, 'outputs')
 
-	for test_file in os.listdir(input_dir
+	for test_file in os.listdir(input_dir):
 		input_path = os.path.join(input_dir, test_file)
 		output_path = os.path.join(output_dir, test_file)
 	
