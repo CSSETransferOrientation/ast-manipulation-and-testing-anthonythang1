@@ -4,7 +4,7 @@ from os.path import join as osjoin
 
 ##Anthony ThanG
 ## HELLLOOOO
-## Hi Dr.Beard :D
+## Hi Dr.Beard :D :D :D
 
 
 import unittest
@@ -175,6 +175,48 @@ class BinOpAst():
         self.mult_by_zero()
         self.constant_fold()
 
+##Expected Input
+def load_input(filepath):
+	with open(filepath, 'r') as file:
+		return file.read().strip().split()
+
+##Expected Output
+def load_output(filepath):
+	with open(filepath, 'r' as file:
+		return file.read().strip()
+
+##Run tests 
+def run_tests(test_dir, transform_function):
+	input_dir = os.path.join('testbench', test_dir, 'inputs')
+	output_dir = os.path.join('testbench', test_dir, 'outputs')
+
+	for test_file in os.listdir(input_dir
+		input_path = os.path.join(input_dir, test_file)
+		output_path = os.path.join(output_dir, test_file)
+	
+		input_data = load_input(input_path)
+
+		expr = BinOpAst(input_data)
+		transform_function(expr)
+
+		generated_output = expr.prefix_str()
+		
+		expected_output = load_output(output_path)
+		if generated_output == expected_output:
+			print(f"{test_file}: PASS")
+		else:
+			print(f"{test_file}: FAIL")
+			print(f"Expected: {expected_output}")
+			print(f"Got: {generated_output}")
+
+
+def run_all_tests():
+	print("Additive Identity Test")
+	run_tests("arith_id", BinOpAst.additive_identity)
+
+	print("Multiplicative Identity Test")
+	run_tests("mult_id", BinOpAst.multiplicative_identity)
+
 
 if __name__ == "__main__":
-    unittest.main()
+    run_all_tests()
