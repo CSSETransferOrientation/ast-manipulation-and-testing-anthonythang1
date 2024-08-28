@@ -4,6 +4,8 @@ from os.path import join as osjoin
 
 ##Anthony ThanG
 ## HELLLOOOO
+## Hi Dr.Beard :D
+
 
 import unittest
 
@@ -114,7 +116,7 @@ class BinOpAst():
 
 
 	
-        pass
+        
                         
     def multiplicative_identity(self):
         """
@@ -138,7 +140,7 @@ class BinOpAst():
 				self.type = self.left.type
 				self.left = self.left.left
 				self.right = self.left.right	
-        pass
+        
     
     
     def mult_by_zero(self):
