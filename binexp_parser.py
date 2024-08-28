@@ -86,7 +86,34 @@ class BinOpAst():
         Reduce additive identities
         x + 0 = x
         """
-        # IMPLEMENT ME!
+        # Check if node is an operator
+	if self.type == NodeType.operator:
+		
+		# If it is, apply identity
+		if self.left:
+			self.left.additive_identity()
+		if self.right:
+			self.right.additive_identity()
+	
+	# Check if node is addition operator
+	if self.val == '+'
+	
+		# if left child is 0, replace node with other child
+		if self.left.type == NodeType.number and self.left.val == '0':
+			self.val = self.right.val
+			self.type = self.right.type
+			self.left = self.right.left
+			self.right = self.right.right
+
+		# if right child is 0, replace node with other child
+		elif self.right.type == Nodetype.number and self.right.val == '0':
+			self.val = self.left.val
+			self.type = self.left.type
+			self.left = self.left.left
+			self.right = self.left.right
+
+
+	
         pass
                         
     def multiplicative_identity(self):
@@ -94,7 +121,23 @@ class BinOpAst():
         Reduce multiplicative identities
         x * 1 = x
         """
-        # IMPLEMENT ME!
+        if self.type == NodeType.operator:
+		if self.left:
+			self.left.multiplicative_identity()
+		if self.right:
+			self.right.multiplicative_identity()
+	
+		if self.val == '*':
+			if self.left.type == NodeType.number and self.left.val == '1':
+				self.val = self.right.val
+				self.type = self.right.type
+				self.left. = self.right.left
+				self.right = self.right.right
+			elif self.right.type == NodeType.number and self.right.val == '1':
+				self.val = self.left.val
+				self.type = self.left.type
+				self.left = self.left.left
+				self.right = self.left.right	
         pass
     
     
