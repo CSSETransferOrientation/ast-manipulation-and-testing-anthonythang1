@@ -160,44 +160,117 @@ class BinOpAst():
         self.multiplicative_identity()
         self.mult_by_zero()
         self.constant_fold()
+	
+class TreeOpTester(unittest.TestCase):
+    def test_arith_id(self):
+        print("\nTesting arith_id")
+        # be able to work with directories
+        input_files = osjoin('testbench/arith_id', 'inputs')
+        output_files = osjoin('testbench/arith_id', 'outputs')
+        log = []
+        flag = True
 
-def load_input(filepath):
-    with open(filepath, 'r') as file:
-        return file.read().strip().split()
+        # iterate through sub files
+        for file_name in os.listdir(input_files):
+            # read in the input files
+           current_file_inputs = open(osjoin(input_files, file_name))
+           input_to_test = current_file_inputs.read().strip()
+           current_file_inputs.close()
 
-def load_output(filepath):
-    with open(filepath, 'r') as file:
-        return file.read().strip()
+            # read in the output files
+           current_file_outputs = open(osjoin(output_files, file_name))
+           uxpected_output = current_file_outputs.read().strip()
+           current_file_outputs.close()
 
-def run_tests(test_dir, transform_function):
-    input_dir = os.path.join('testbench', test_dir, 'inputs')
-    output_dir = os.path.join('testbench', test_dir, 'outputs')
+            # build tree and run additive_identity()
+           tree = BinOpAst(input_to_test.split())
+           tree.additive_identity()
+           actual_output = tree.prefix_str()
 
-    for test_file in os.listdir(input_dir):
-        input_path = os.path.join(input_dir, test_file)
-        output_path = os.path.join(output_dir, test_file)
+            # create a log of everything, this way we can run all tests, even if some fail.
+           log.append((file_name, actual_output, expected_output))
+           if actual_output != expected_output:
+                flag = False
 
-        input_data = load_input(input_path)
+        # print out the log, then assert to see if any part of test failed.
+        for item in log:
+           print(f'{"!FAIL!" if item[1] != item[2] else "Passed"} {item[0]}: {item[1]} = {item[2]}')
+        assert flag
+        
 
-        expr = BinOpAst(input_data)
-        transform_function(expr)
 
-        generated_output = expr.prefix_str()
+    def test_mult_id(self):
+        print("\nTesting mult_id")
+        # be able to work with directories
+        input_files = osjoin('testbench/mult_id', 'inputs')
+        output_files = osjoin('testbench/mult_id', 'outputs')
+        log = []
+        flag = True
 
-        expected_output = load_output(output_path)
-        if generated_output == expected_output:
-            print(f"{test_file}: PASS")
-        else:
-            print(f"{test_file}: FAIL")
-            print(f"Expected: {expected_output}")
-            print(f"Got: {generated_output}")
+        # iterate through sub files
+        for file_name in os.listdir(input_files):
+            # read in the input files
+            current_file_inputs = open(osjoin(input_files, file_name))
+            input_to_test = current_file_inputs.read().strip()
+            current_file_inputs.close()
 
-def run_all_tests():
-    print("Additive Identity Test")
-    run_tests("arith_id", BinOpAst.additive_identity)
+            # read in the output files
+            current_file_outputs = open(osjoin(output_files, file_name))
+            expected_output = current_file_outputs.read().strip()
+            current_file_outputs.close()
 
-    print("Multiplicative Identity Test")
-    run_tests("mult_id", BinOpAst.multiplicative_identity)
+            # build tree and run multiplicitive_identity()
+            tree = BinOpAst(input_to_test.split())
+            tree.multiplicative_identity()
+            actual_output = tree.prefix_str()
+
+            # create a log of everything, this way we can run all tests, even if some fail.
+            log.append((file_name, actual_output, expected_output))
+            if actual_output != expected_output:
+                flag = False
+
+        # print out the log, then assert to see if any part of test failed.
+        for item in log:
+           print(f'{"!FAIL!" if item[1] != item[2] else "Passed"} {item[0]}: {item[1]} = {item[2]}')
+        assert flag
+ 
+    def test_mult_by_zero(self):
+        print("\nTesting mult_by_zero")
+        # be able to work with directories
+        input_files = osjoin('testbench/mult_by_zero', 'inputs')
+        output_files = osjoin('testbench/mult_by_zero', 'outputs')
+        log = []
+        flag = True
+
+        # iterate through sub files
+        for file_name in os.listdir(input_files):
+            # read in the input files
+            current_file_inputs = open(osjoin(input_files, file_name))
+            input_to_test = current_file_inputs.read().strip()
+            current_file_inputs.close()
+
+            # read in the output files
+            current_file_outputs = open(osjoin(output_files, file_name))
+            expected_output = current_file_outputs.read().strip()
+            current_file_outputs.close()
+
+            # build tree and run additive_identity()
+            tree = BinOpAst(input_to_test.split())
+            tree.mult_by_zero()
+            actual_output = tree.prefix_str()
+
+            # create a log of everything, this way we can run all tests, even if some fail.
+            log.append((file_name, actual_output, expected_output))
+            if actual_output != expected_output:
+                flag = False
+
+        # print out the log, then assert to see if any part of test failed.
+        for item in log:
+           print(f'{"!FAIL!" if item[1] != item[2] else "Passed"} {item[0]}: {item[1]} = {item[2]}')
+        assert flag
+        
+
+
 
 if __name__ == "__main__":
-    run_all_tests()
+    unittest.main()
