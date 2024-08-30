@@ -4,27 +4,22 @@ from os.path import join as osjoin
 import unittest
 from enum import Enum
 
-# Use these to distinguish node types, note that you might want to further
-# distinguish between the addition and multiplication operators
+# Node type enumeration for distinguishing between numbers and operators
 NodeType = Enum('BinOpNodeType', ['number', 'operator'])
 
-class BinOpAst():
+class BinOpAst:
     """
-    A somewhat quick and dirty structure to represent a binary operator AST.
+    A binary operator AST that can be initialized from a list of tokens in prefix notation.
+    """
 
-    Reads input as a list of tokens in prefix notation, converts into internal representation,
-    then can convert to prefix, postfix, or infix string output.
-    """
     def __init__(self, prefix_list):
-        """
-        Initialize a binary operator AST from a given list in prefix notation.
-        Destroys the list that is passed in.
-        """
+        if not prefix_list:
+            raise ValueError("Cannot initialize BinOpAst with an empty prefix list.")
         self.val = prefix_list.pop(0)
         if self.val.isnumeric():
             self.type = NodeType.number
-            self.left = False
-            self.right = False
+            self.left = None
+            self.right = None
         else:
             self.type = NodeType.operator
             self.left = BinOpAst(prefix_list)
@@ -32,17 +27,12 @@ class BinOpAst():
 
     def __str__(self, indent=0):
         """
-        Convert the binary tree printable string where indentation level indicates
-        parent/child relationships
+        Converts the binary tree to a string with indentation representing hierarchy.
         """
-        ilvl = '  '*indent
-        left = '\n  ' + ilvl + self.left.__str__(indent+1) if self.left else ''
-        right = '\n  ' + ilvl + self.right.__str__(indent+1) if self.right else ''
+        ilvl = '  ' * indent
+        left = f'\n{ilvl}{self.left.__str__(indent + 1)}' if self.left else ''
+        right = f'\n{ilvl}{self.right.__str__(indent + 1)}' if self.right else ''
         return f"{ilvl}{self.val}{left}{right}"
-
-    def __repr__(self):
-        """Generate the repr from the string"""
-        return str(self)
 
     def prefix_str(self):
         """
@@ -50,8 +40,7 @@ class BinOpAst():
         """
         if self.type == NodeType.number:
             return self.val
-        else:  # self.type == NodeType.operator
-            return self.val + ' ' + self.left.prefix_str() + ' ' + self.right.prefix_str()
+        return f"{self.val} {self.left.prefix_str()} {self.right.prefix_str()}"
 
     def infix_str(self):
         """
@@ -59,8 +48,7 @@ class BinOpAst():
         """
         if self.type == NodeType.number:
             return self.val
-        else:  # self.type == NodeType.operator
-            return '(' + self.left.infix_str() + ' ' + self.val + ' ' + self.right.infix_str() + ')'
+        return f"({self.left.infix_str()} {self.val} {self.right.infix_str()})"
 
     def postfix_str(self):
         """
@@ -68,162 +56,107 @@ class BinOpAst():
         """
         if self.type == NodeType.number:
             return self.val
-        else:  # self.type == NodeType.operator
-            return self.left.postfix_str() + ' ' + self.right.postfix_str() + ' ' + self.val
+        return f"{self.left.postfix_str()} {self.right.postfix_str()} {self.val}"
 
+    # Additive identity reduction
     def additive_identity(self):
-        """
-        Reduce additive identities
-        x + 0 = x
-        """
         if self.type == NodeType.number:
             return
-
         self.left.additive_identity()
         self.right.additive_identity()
-
-        if self.val == '*':
+        if self.val == '*' or self.val == '/':
             return
-
         if self.left.val == '0':
-            self.val = self.right.val
-            self.type = self.right.type
-            self.left = self.right.left
-            self.right = self.right.right
-
+            self._replace_node_with(self.right)
         elif self.right.val == '0':
-            self.val = self.left.val
-            self.type = self.left.type
-            self.right = self.left.right
-            self.left = self.left.left
+            self._replace_node_with(self.left)
 
-        return
-
+    # Multiplicative identity reduction
     def multiplicative_identity(self):
-        """
-        Reduce multiplicative identities
-        x * 1 = x
-        """
         if self.type == NodeType.number:
             return
-
         self.left.multiplicative_identity()
         self.right.multiplicative_identity()
-
         if self.val == '+':
             return
-
         if self.left.val == '1':
-            self.val = self.right.val
-            self.type = self.right.type
-            self.left = self.right.left
-            self.right = self.right.right
-
+            self._replace_node_with(self.right)
         elif self.right.val == '1':
-            self.val = self.left.val
-            self.type = self.left.type
-            self.right = self.left.right
-            self.left = self.left.left
+            self._replace_node_with(self.left)
 
-        return
-
+    # Multiplication by zero reduction
     def mult_by_zero(self):
+        if self.type == NodeType.number:
+            return
+        self.left.mult_by_zero()
+        self.right.mult_by_zero()
+        if self.val == '*' and (self.left.val == '0' or self.right.val == '0'):
+            self._replace_node_with(BinOpAst(['0']))
+
+    def _replace_node_with(self, other):
         """
-        Reduce multiplication by zero
-        x * 0 = 0
+        Replaces the current node with another node.
         """
+        self.val = other.val
+        self.type = other.type
+        self.left = other.left
+        self.right = other.right
+
+    # Simplifies binary operations
+    def simplify_binops(self):
+        self.additive_identity()
+        self.multiplicative_identity()
+        self.mult_by_zero()
+        self.constant_fold()
 
     def constant_fold(self):
         """
-        Fold constants,
-        e.g. 1 + 2 = 3
-        e.g. x + 2 = x + 2
+        Fold constants (e.g., 1 + 2 = 3).
         """
-        # Optionally, IMPLEMENT ME! This is a bit more challenging.
-        pass            
-
-    def simplify_binops(self):
-        """
-        Simplify binary trees with the following:
-        1) Additive identity, e.g. x + 0 = x
-        2) Multiplicative identity, e.g. x * 1 = x
-        3) Extra #1: Multiplication by 0, e.g. x * 0 = 0
-        4) Extra #2: Constant folding, e.g. statically we can reduce 1 + 1 to 2, but not x + 1 to anything
-        """
-        self.additive_identity()
-        self.multiplicative_identity()
+        # Optional implementation
+        pass
 
 class TreeOpTester(unittest.TestCase):
-    def test_arith_id(self):
-        print("\nTesting arith_id")
-        # be able to work with directories
-        input_files = osjoin('testbench/arith_id', 'inputs')
-        output_files = osjoin('testbench/arith_id', 'outputs')
+
+    def run_test_case(self, test_name, operation):
+        print(f"\nTesting {test_name}")
+        input_files = osjoin(f'testbench/{test_name}', 'inputs')
+        output_files = osjoin(f'testbench/{test_name}', 'outputs')
         log = []
         flag = True
 
-        # iterate through sub files
         for file_name in os.listdir(input_files):
-            # read in the input files
-            current_file_inputs = open(osjoin(input_files, file_name))
-            input_to_test = current_file_inputs.read().strip()
-            current_file_inputs.close()
+            with open(osjoin(input_files, file_name)) as f:
+                input_to_test = f.read().strip()
+            if not input_to_test:
+                print(f"Skipping empty input file: {file_name}")
+                continue
+            with open(osjoin(output_files, file_name)) as f:
+                expected_output = f.read().strip()
 
-            # read in the output files
-            current_file_outputs = open(osjoin(output_files, file_name))
-            expected_output = current_file_outputs.read().strip()
-            current_file_outputs.close()
-
-            # build tree and run additive_identity()
             tree = BinOpAst(input_to_test.split())
-            tree.additive_identity()
+            operation(tree)
             actual_output = tree.prefix_str()
 
-            # create a log of everything, this way we can run all tests, even if some fail.
             log.append((file_name, actual_output, expected_output))
             if actual_output != expected_output:
                 flag = False
+                print(f"!FAIL! {file_name}: Expected '{expected_output}', but got '{actual_output}'")
 
-        # print out the log, then assert to see if any part of test failed.
         for item in log:
             print(f'{"!FAIL!" if item[1] != item[2] else "Passed"} {item[0]}: {item[1]} = {item[2]}')
-        assert flag
 
+        if not flag:
+            raise AssertionError(f"Some test cases failed in {test_name}. Check the log above for details.")
+
+    def test_arith_id(self):
+        self.run_test_case('arith_id', lambda tree: tree.additive_identity())
 
     def test_mult_id(self):
-        print("\nTesting mult_id")
-        # be able to work with directories
-        input_files = osjoin('testbench/mult_id', 'inputs')
-        output_files = osjoin('testbench/mult_id', 'outputs')
-        log = []
-        flag = True
+        self.run_test_case('mult_id', lambda tree: tree.multiplicative_identity())
 
-        # iterate through sub files
-        for file_name in os.listdir(input_files):
-            # read in the input files
-            current_file_inputs = open(osjoin(input_files, file_name))
-            input_to_test = current_file_inputs.read().strip()
-            current_file_inputs.close()
-
-            # read in the output files
-            current_file_outputs = open(osjoin(output_files, file_name))
-            expected_output = current_file_outputs.read().strip()
-            current_file_outputs.close()
-
-            # build tree and run multiplicitive_identity()
-            tree = BinOpAst(input_to_test.split())
-            tree.multiplicative_identity()
-            actual_output = tree.prefix_str()
-
-            # create a log of everything, this way we can run all tests, even if some fail.
-            log.append((file_name, actual_output, expected_output))
-            if actual_output != expected_output:
-                flag = False
-
-        # print out the log, then assert to see if any part of test failed.
-        for item in log:
-           print(f'{"!FAIL!" if item[1] != item[2] else "Passed"} {item[0]}: {item[1]} = {item[2]}')
-        assert flag
+    def test_mult_by_zero(self):
+        self.run_test_case('mult_by_zero', lambda tree: tree.mult_by_zero())
 
 if __name__ == "__main__":
     unittest.main()
