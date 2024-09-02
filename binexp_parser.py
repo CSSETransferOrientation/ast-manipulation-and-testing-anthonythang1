@@ -66,6 +66,10 @@ class BinOpAst:
         self.right.additive_identity()
         if self.val == '*' or self.val == '/':
             return
+        # ;;> This is a bit dangerous because you are assuming that '+' is the only thing left at this point
+        # ;;> It would be better to check for '+' and then ignore everything else to make the code more
+        # ;;> extensible in the future. E.g. imagine how hard it would be to extend your program if we added
+        # ;;> new operators, like ^ or added identifiers.
         if self.left.val == '0':
             self._replace_node_with(self.right)
         elif self.right.val == '0':
@@ -93,6 +97,7 @@ class BinOpAst:
         if self.val == '*' and (self.left.val == '0' or self.right.val == '0'):
             self._replace_node_with(BinOpAst(['0']))
 
+    # ;;> Excellent use of a helper function here
     def _replace_node_with(self, other):
         """
         Replaces the current node with another node.
@@ -150,6 +155,7 @@ class TreeOpTester(unittest.TestCase):
             raise AssertionError(f"Some test cases failed in {test_name}. Check the log above for details.")
 
     def test_arith_id(self):
+        # ;;> oooo nice! Using lambdas already
         self.run_test_case('arith_id', lambda tree: tree.additive_identity())
 
     def test_mult_id(self):

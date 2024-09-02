@@ -6,3 +6,7 @@
 	Completing this project taught me a lot, including the need of developing modular and reusable code, especially in complicated data structures. I was able to finish the implementation and testing process by dividing chores into smaller, well defined approaches and applying a flexible testing framework. This method encourages growth and wisdom for my future projects. 
 
 	I did not enjoy my test cases failing stating, "cannot pop" because I was very lost on what this meant. Nevertheless, I tried and tried again until I realized that it wasn't my code failing, my code was actually doing its job. Instead, it was in my testbench that hindered my test cases from showing what I wanted to see. 
+
+# ;;> Confusing error messages or the bug being somewhere else is always a frustrating experience. Glad you got it working!
+
+# ;;> Extremely sparse tests 
